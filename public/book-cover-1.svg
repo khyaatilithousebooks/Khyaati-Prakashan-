@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="900" viewBox="0 0 1200 900" role="img" aria-labelledby="title desc">
+  <title id="title">Book cover placeholder</title>
+  <desc id="desc">Abstract gradient background for book artwork</desc>
+  <defs>
+    <linearGradient id="grad1" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#0ea5e9"/>
+      <stop offset="100%" stop-color="#6366f1"/>
+    </linearGradient>
+  </defs>
+  <rect width="1200" height="900" fill="url(#grad1)"/>
+  <g fill="#f8fafc" font-family="sans-serif" text-anchor="middle">
+    <text x="600" y="440" font-size="96" font-weight="700">Book</text>
+    <text x="600" y="530" font-size="48" opacity="0.8">Cover</text>
+  </g>
+</svg>
