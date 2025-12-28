@@ -131,12 +131,13 @@ export default function SettingsPage() {
           <Input
             id="username"
             value={profile.username}
-            onChange={(e) =>
-              setProfile((prev) => ({ ...prev, username: e.target.value }))
-            }
-            placeholder="Enter your username"
-            required
+            readOnly
+            aria-readonly="true"
+            className="cursor-not-allowed bg-muted"
           />
+          <p className="text-xs text-muted-foreground">
+            Contact support to change your username.
+          </p>
         </div>
 
         <div className="space-y-2">
@@ -145,12 +146,13 @@ export default function SettingsPage() {
             id="email"
             type="email"
             value={profile.email}
-            onChange={(e) =>
-              setProfile((prev) => ({ ...prev, email: e.target.value }))
-            }
-            placeholder="Enter your email"
-            required
+            readOnly
+            aria-readonly="true"
+            className="cursor-not-allowed bg-muted"
           />
+          <p className="text-xs text-muted-foreground">
+            Contact support to change your email.
+          </p>
         </div>
 
         <div className="space-y-2">

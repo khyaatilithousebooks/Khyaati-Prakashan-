@@ -8,8 +8,15 @@ export default function LoginPage() {
       <div className="flex flex-col">
         <header className="p-6">
           <div className="flex items-center gap-2 text-sm font-medium">
-            <div className="h-6 w-6 rounded-md bg-black" />
-            Acme Inc.
+            <Image
+              src="/Khyaati_Prakashan_White.png"
+              alt="Khyaati Prakashan logo"
+              width={32}
+              height={32}
+              className="rounded-md bg-black"
+              priority
+            />
+            Khyaati Prakashan
           </div>
         </header>
 
@@ -27,14 +34,13 @@ export default function LoginPage() {
         </main>
       </div>
 
-     
-      <div className="relative hidden lg:block bg-slate-50">
+      <div className="relative hidden lg:block bg-slate-50 overflow-hidden">
         <Image
           src="/LoginPage1.jpg"
           alt="Login illustration"
           fill
           className="object-cover"
-          sizes="(min-width:1024px) 40vw, 100vw"
+          sizes="(min-width:1024px) 50vw, 100vw"
           priority
         />
         <div className="absolute inset-0 bg-black/10" />
