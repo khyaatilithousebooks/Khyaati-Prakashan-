@@ -28,18 +28,15 @@ export default function LoginPage() {
       </div>
 
      
-      <div className="relative hidden lg:flex items-center justify-center bg-slate-50">
-        <div className="w-full h-full px-6">
-          <Image
-            src="/LoginPage1.jpg"
-            alt="Login illustration"
-            width={1600}
-            height={2400}
-            className="w-full h-full object-contain"
-            sizes="(min-width:1024px) 50vw, 100vw"
-            priority
-          />
-        </div>
+      <div className="relative hidden lg:block bg-slate-50">
+        <Image
+          src="/LoginPage1.jpg"
+          alt="Login illustration"
+          fill
+          className="object-cover"
+          sizes="(min-width:1024px) 40vw, 100vw"
+          priority
+        />
         <div className="absolute inset-0 bg-black/10" />
       </div>
     </div>
