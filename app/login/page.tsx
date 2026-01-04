@@ -9,7 +9,7 @@ export default function LoginPage() {
         <header className="p-6">
           <div className="flex items-center gap-2 text-sm font-medium">
             <Image
-              src="/Khyaati_Prakashan_White.png"
+              src="/Khyaati Prakashan_Yellow Logo_Blue BG.png"
               alt="Khyaati Prakashan logo"
               width={32}
               height={32}

@@ -10,13 +10,14 @@ import {
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import type { StockRow } from "@/lib/types";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 
 function formatINR(value: number) {
   return new Intl.NumberFormat("en-IN", {
     style: "currency",
     currency: "INR",
-    maximumFractionDigits: 0,
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
   }).format(value);
 }
 
@@ -37,12 +38,50 @@ function CellInput({ value }: { value: string }) {
   );
 }
 
-export default function StockTable({ rows }: { rows: StockRow[] }) {
+type Props = {
+  rows: StockRow[];
+  userName?: string;
+  userEmail?: string;
+};
+
+export default function StockTable({ rows, userEmail, userName }: Props) {
   const [showSettle, setShowSettle] = useState(false);
-  const leftRoyaltyTotal = rows.reduce(
-    (acc, r) => acc + (Number.isFinite(r.leftRoyalty) ? r.leftRoyalty : 0),
-    0
+  const [submitting, setSubmitting] = useState(false);
+  const [submitted, setSubmitted] = useState(false);
+  const leftRoyaltyTotal = useMemo(
+    () =>
+      rows.reduce(
+        (acc, r) => acc + (Number.isFinite(r.leftRoyalty) ? r.leftRoyalty : 0),
+        0
+      ),
+    [rows]
   );
+
+  async function requestPayout() {
+    setSubmitting(true);
+    try {
+      const res = await fetch("/api/user/payout", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          user: userName || "Unknown user",
+          email: userEmail || "Unknown email",
+          amount: leftRoyaltyTotal,
+        }),
+      });
+
+      if (!res.ok) {
+        throw new Error(`Payout request failed with ${res.status}`);
+      }
+
+      alert("Payout request submitted. It may take 2-4 days to reflect.");
+      setSubmitted(true);
+    } catch {
+      alert("Could not submit payout request. Try again.");
+    } finally {
+      setSubmitting(false);
+    }
+  }
 
   return (
     <Card className="rounded-xl border">
@@ -99,14 +138,20 @@ export default function StockTable({ rows }: { rows: StockRow[] }) {
         </div>
 
         <div className="mt-4 flex justify-center">
-          <Button
-            className="gap-2 bg-blue-600 text-white hover:bg-blue-700"
-            onClick={() => setShowSettle((prev) => !prev)}
-          >
-            {showSettle
-              ? `Settle Amount ${formatINR(leftRoyaltyTotal)}`
-              : "Generate Balance"}
-          </Button>
+          {!submitted && (
+            <Button
+              className="gap-2 bg-blue-600 text-white hover:bg-blue-700"
+              disabled={submitting}
+              onClick={async () => {
+                setShowSettle((prev) => !prev);
+                await requestPayout();
+              }}
+            >
+              {showSettle
+                ? `Settle Amount ${formatINR(leftRoyaltyTotal)}`
+                : "Generate Balance"}
+            </Button>
+          )}
         </div>
       </CardContent>
     </Card>

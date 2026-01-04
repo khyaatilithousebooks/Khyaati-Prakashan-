@@ -20,6 +20,8 @@ export default function DashboardPage() {
   const [books, setBooks] = useState<Book[]>([]);
   const [selectedId, setSelectedId] = useState("");
   const [userInitial, setUserInitial] = useState("?");
+  const [userName, setUserName] = useState("");
+  const [userEmail, setUserEmail] = useState("");
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -36,6 +38,8 @@ export default function DashboardPage() {
         if (!data || !active) return;
         setBooks(data.books ?? []);
         setSelectedId((data.books?.[0]?.id as string | undefined) ?? "");
+        setUserName(data.username ?? "");
+        setUserEmail(data.email ?? "");
         setUserInitial(
           (data.username ?? data.email ?? "?").slice(0, 1).toUpperCase()
         );
@@ -108,7 +112,11 @@ export default function DashboardPage() {
             <BookImagesCard images={selectedBook.images} />
           </div>
 
-          <StockTable rows={selectedBook.stock} />
+          <StockTable
+            rows={selectedBook.stock}
+            userName={userName}
+            userEmail={userEmail}
+          />
         </div>
       </div>
     </div>

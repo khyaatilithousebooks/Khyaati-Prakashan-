@@ -67,26 +67,20 @@ function buildStockRow(
   row: Record<string, unknown>,
   idx: number
 ): StockRow {
-  const stockNumber =
-    getField(row, ["edition", "stocknumber", "editionnumber"]) ||
-    `ED-${idx + 1}`;
+  const stockNumber = getField(row, ["edition"]) || `ED-${idx + 1}`;
 
-  let royalty = toNumber(getField(row, ["royalty", "royaltypercent"]));
-  if (royalty > 0 && royalty <= 1) {
-    royalty = royalty * 100;
-  }
+  // Take the royalty field as-is (decimal-friendly); no percent conversion.
+  const royalty = toNumber(getField(row, ["royalty"]));
 
   return {
     stockNumber: String(stockNumber || `ED-${idx + 1}`),
-    price: toNumber(getField(row, ["price", "mrp", "cost"])),
+    price: toNumber(getField(row, ["price"])),
     royaltyPercent: royalty,
-    totalStock: toNumber(getField(row, ["print", "totalstock", "printqty"])),
-    soldStock: toNumber(getField(row, ["sold", "stock", "soldstock"])),
-    earnings: toNumber(getField(row, ["royaltyamount", "earnings", "amount"])),
-    settledAmount: 0,
-    leftRoyalty: toNumber(
-      getField(row, ["leftroyalty", "balance", "leftbalance", "left"])
-    ),
+    totalStock: toNumber(getField(row, ["print"])),
+    soldStock: toNumber(getField(row, ["salebooks"])),
+    earnings: toNumber(getField(row, ["royaltyamount"])),
+    settledAmount: toNumber(getField(row, ["settleroyalty"])),
+    leftRoyalty: toNumber(getField(row, ["leftroyalty"])),
   };
 }
 
