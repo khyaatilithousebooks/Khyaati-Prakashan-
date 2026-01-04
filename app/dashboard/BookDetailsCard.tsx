@@ -1,4 +1,4 @@
-import type { Book } from "@/lib/mock/data";
+import type { Book } from "@/lib/types";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";

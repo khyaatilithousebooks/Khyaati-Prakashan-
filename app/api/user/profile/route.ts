@@ -1,41 +1,39 @@
 import { NextResponse } from "next/server";
 import { cookies } from "next/headers";
-import path from "path";
-import fs from "fs/promises";
 import {
   SESSION_COOKIE_NAME,
   verifySessionToken,
 } from "@/lib/auth/session";
-import { userWorkbooks } from "@/lib/mock/data";
+import { getFirebaseAdminDb } from "@/lib/firebase-admin";
+import type { Book, UserRecord } from "@/lib/types";
 
 export const runtime = "nodejs";
 
-type Profile = {
-  username: string;
-  email: string;
-  bio?: string;
+type UserDoc = {
+  data: UserRecord;
+  ref: FirebaseFirestore.DocumentReference;
 };
 
-const DATA_PATH = path.join(process.cwd(), "data", "profile-overrides.json");
+async function getUserDocByEmail(email: string): Promise<UserDoc | null> {
+  const db = getFirebaseAdminDb();
+  const candidates = Array.from(
+    new Set([email.trim(), email.trim().toLowerCase()])
+  ).filter(Boolean);
 
-async function readOverrides(): Promise<Record<string, Profile>> {
-  try {
-    const raw = await fs.readFile(DATA_PATH, "utf8");
-    return JSON.parse(raw) as Record<string, Profile>;
-  } catch {
-    return {};
+  for (const candidate of candidates) {
+    const snap = await db
+      .collection("users")
+      .where("email", "==", candidate)
+      .limit(1)
+      .get();
+
+    if (!snap.empty) {
+      const doc = snap.docs[0];
+      return { data: doc.data() as UserRecord, ref: doc.ref };
+    }
   }
-}
 
-async function writeOverrides(overrides: Record<string, Profile>) {
-  await fs.mkdir(path.dirname(DATA_PATH), { recursive: true });
-  await fs.writeFile(DATA_PATH, JSON.stringify(overrides, null, 2), "utf8");
-}
-
-function getUserByEmail(email: string) {
-  return userWorkbooks.find(
-    (u) => u.email.toLowerCase() === email.toLowerCase()
-  );
+  return null;
 }
 
 export async function GET() {
@@ -51,15 +49,14 @@ export async function GET() {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
-  const overrides = await readOverrides();
-  const fromOverrides = overrides[payload.email];
-  const user = getUserByEmail(payload.email);
+  const userDoc = await getUserDocByEmail(payload.email);
+  const user = userDoc?.data;
 
   return NextResponse.json({
-    username: fromOverrides?.username ?? payload.username ?? "",
+    username: user?.username ?? payload.username ?? "",
     email: payload.email ?? "",
-    bio: fromOverrides?.bio ?? "",
-    books: user?.books ?? [],
+    bio: user?.bio ?? "",
+    books: (user?.books ?? []) as Book[],
   });
 }
 
@@ -83,23 +80,27 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "Invalid JSON" }, { status: 400 });
   }
 
-  const { username, email, bio } = (body as Record<string, unknown>) ?? {};
+  const { username, bio } = (body as Record<string, unknown>) ?? {};
 
-  if (typeof username !== "string" || typeof email !== "string") {
+  if (typeof username !== "string") {
     return NextResponse.json(
-      { error: "Username and email are required." },
+      { error: "Username is required." },
       { status: 400 }
     );
   }
 
-  const overrides = await readOverrides();
-  overrides[payload.email] = {
+  const userDoc = await getUserDocByEmail(payload.email);
+  if (!userDoc) {
+    return NextResponse.json({ error: "User not found." }, { status: 404 });
+  }
+
+  const update: Partial<UserRecord> = {
     username,
-    email,
+    email: payload.email,
     bio: typeof bio === "string" ? bio : "",
   };
 
-  await writeOverrides(overrides);
+  await userDoc.ref.set(update, { merge: true });
 
-  return NextResponse.json({ ok: true });
+  return NextResponse.json({ ok: true, user: update });
 }

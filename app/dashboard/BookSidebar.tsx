@@ -4,7 +4,7 @@ import { useMemo, useState } from "react";
 import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { cn } from "@/lib/utils";
-import type { Book } from "@/lib/mock/data";
+import type { Book } from "@/lib/types";
 
 
 export default function BookSidebar({

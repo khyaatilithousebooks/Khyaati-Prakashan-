@@ -1,5 +1,4 @@
 import { NextResponse } from "next/server";
-import { mockUsers } from "@/lib/mock/users";
 import { verifyPassword } from "@/lib/auth/password";
 import {
   createSessionToken,
@@ -10,6 +9,29 @@ import {
   isAdminEmail,
   verifyAdminCredentials,
 } from "@/lib/auth/admin";
+import { getFirebaseAdminDb } from "@/lib/firebase-admin";
+import type { UserRecord } from "@/lib/types";
+
+async function fetchUserByEmail(email: string): Promise<UserRecord | null> {
+  const db = getFirebaseAdminDb();
+  const candidates = Array.from(
+    new Set([email.trim(), email.trim().toLowerCase()])
+  ).filter(Boolean);
+
+  for (const candidate of candidates) {
+    const snap = await db
+      .collection("users")
+      .where("email", "==", candidate)
+      .limit(1)
+      .get();
+
+    if (!snap.empty) {
+      return snap.docs[0].data() as UserRecord;
+    }
+  }
+
+  return null;
+}
 
 export async function POST(request: Request) {
   let body: unknown;
@@ -73,10 +95,7 @@ export async function POST(request: Request) {
     return response;
   }
 
-  const user = mockUsers.find(
-    (u) => u.email.toLowerCase() === trimmedEmail.toLowerCase()
-  );
-
+  const user = await fetchUserByEmail(trimmedEmail);
   if (!user) {
     return NextResponse.json(
       { error: "User is not registered." },

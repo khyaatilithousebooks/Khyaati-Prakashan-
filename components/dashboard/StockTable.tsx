@@ -9,7 +9,7 @@ import {
 } from "@/components/ui/table";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import type { StockRow } from "@/lib/mock/data";
+import type { StockRow } from "@/lib/types";
 import { useState } from "react";
 
 function formatINR(value: number) {

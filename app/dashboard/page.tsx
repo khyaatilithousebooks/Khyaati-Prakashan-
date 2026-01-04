@@ -3,7 +3,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import StockTable from "@/components/dashboard/StockTable";
-import type { Book } from "@/lib/mock/data";
+import type { Book } from "@/lib/types";
 import BookDetailsCard from "./BookDetailsCard";
 import BookImagesCard from "./BookImagesCard";
 import BookSidebar from "./BookSidebar";
